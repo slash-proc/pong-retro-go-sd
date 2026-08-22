@@ -27,15 +27,19 @@ attached to the release:
 
 ### Added
 
-- (your changes here)
+- Port of Jopo12321's Game & Watch Pong as a GWHB homebrew (`PROJECT_KIND=homebrew`).
+- Main menu, settings (difficulty / paddle / ball color), in-game menu, game
+  over, idle demo, and the About easter egg.
+- Settings persisted via `odroid_settings_app_int32_*`.
+- SDK/firmware ABI: `dma2d_r2m_rgb565_start` for solid RGB565 fills (with
+  line offset); Pong `FillBuffer` uses it with a CPU fallback.
+- SDK/firmware ABI: `dma2d_m2m_rgb565_start_ex` for RGB565 blits with
+  source/destination line offsets (pitch − width).
 
 ### Changed
 
-- (your changes here)
-
-### Fixed
-
-- (your changes here)
+- Default project kind is homebrew; packed output is `Pong.bin`.
+- Graphics fills prefer firmware DMA2D R2M instead of a pure CPU loop.
 
 ## [v1.0.0] - 2026-08-12
 

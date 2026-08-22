@@ -15,13 +15,34 @@
 #######################################
 # core     → pack_core.py     → /cores/<name>.bin
 # homebrew → pack_homebrew.py → /homebrews/<name>.bin
-PROJECT_KIND ?= core
+PROJECT_KIND ?= homebrew
 
-CORE_NAME  := example
+CORE_NAME  := pong
 CORE_ENTRY := app_main
 
+CORE_C_INCLUDES := \
+-Isrc/pong \
+-Isrc/pong/game \
+-Isrc/pong/main_menu \
+-Isrc/pong/graphics \
+-Isrc/pong/gw_hardware
+
 CORE_C_SOURCES := \
-src/main.c
+src/main.c \
+src/pong/platform.c \
+src/pong/game/game.c \
+src/pong/game/game_over.c \
+src/pong/game/in_game_menu.c \
+src/pong/main_menu/main_menu.c \
+src/pong/main_menu/settings_menu.c \
+src/pong/main_menu/about_menu.c \
+src/pong/graphics/graphics.c \
+src/pong/graphics/sprites.c \
+src/pong/font/font8.c \
+src/pong/font/font12.c \
+src/pong/font/font16.c \
+src/pong/font/font20.c \
+src/pong/font/font24.c
 
 # Relative path so Docker bind-mounts work (do NOT use $(abspath) — it
 # bakes the host path into Make prerequisites / .d files). Do not name
@@ -78,8 +99,8 @@ else ifeq ($(PROJECT_KIND),homebrew)
 CORE_C_DEFS := \
 -DPROJECT_KIND_HOMEBREW=1
 
-PACKED_BIN := ExampleHB.bin
-HB_NAME    := Example Homebrew
+PACKED_BIN := Pong.bin
+HB_NAME    := Pong
 # Compact coverflow tile (HW max is 186x100 — do not use full width by default).
 COVER_JPG    := $(BUILD_DIR)/cover.jpg
 COVER_WIDTH  ?= 128
@@ -93,7 +114,7 @@ include $(GNW_CORE_SDK)/Makefile
 
 PACK_CORE     := $(GNW_CORE_SDK)/tools/pack_core.py
 PACK_HOMEBREW := $(GNW_CORE_SDK)/tools/pack_homebrew.py
-GEN_COVER     := scripts/gen_homebrew_cover.py
+GEN_COVER     := scripts/gen_pong_cover.py
 
 #######################################
 # Packed header version
@@ -132,10 +153,9 @@ cover: $(COVER_JPG)
 # Must stay ≤ gui.c COVER_MAX_WIDTH x COVER_MAX_HEIGHT (186x100) and
 # COVER_SIZE (10 KiB) — oversized covers smash the HW JPEG scratch.
 $(COVER_JPG): $(GEN_COVER)
-	$(V)$(ECHO) [ COVER ] $(COVER_JPG) ($(COVER_WIDTH)x$(COVER_HEIGHT))
+	$(V)$(ECHO) "[ COVER ] $(COVER_JPG) ($(COVER_WIDTH)x$(COVER_HEIGHT))"
 	$(V)python3 $(GEN_COVER) \
 		--out $(COVER_JPG) \
-		--title "$(HB_NAME)" \
 		--width $(COVER_WIDTH) \
 		--height $(COVER_HEIGHT)
 

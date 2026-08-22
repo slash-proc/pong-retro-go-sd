@@ -292,6 +292,56 @@ void lcd_wait_for_vblank(void)
     host_platform_delay_ms(1);
 }
 
+void lcd_sync(void)
+{
+    lcd_wait_for_vblank();
+}
+
+void HAL_Delay(uint32_t Delay)
+{
+    if (Delay)
+        host_platform_delay_ms(Delay);
+}
+
+/* Device ABI DMA2D stubs — host FillBuffer uses the CPU path. */
+uint32_t dma2d_m2m_rgb565_start(uint32_t src, uint32_t dst, uint16_t width, uint16_t height)
+{
+    (void)src;
+    (void)dst;
+    (void)width;
+    (void)height;
+    return 1;
+}
+
+uint32_t dma2d_m2m_rgb565_start_ex(uint32_t src, uint32_t dst, uint16_t width, uint16_t height,
+                                   uint16_t src_offset, uint16_t dst_offset)
+{
+    (void)src;
+    (void)dst;
+    (void)width;
+    (void)height;
+    (void)src_offset;
+    (void)dst_offset;
+    return 1;
+}
+
+uint32_t dma2d_r2m_rgb565_start(uint32_t color, uint32_t dst, uint16_t width, uint16_t height,
+                                uint16_t dst_offset)
+{
+    (void)color;
+    (void)dst;
+    (void)width;
+    (void)height;
+    (void)dst_offset;
+    return 1;
+}
+
+uint32_t dma2d_poll(uint32_t timeout_ms)
+{
+    (void)timeout_ms;
+    return 0;
+}
+
 void lcd_set_refresh_rate(uint32_t frequency)
 {
     if (frequency)
@@ -760,17 +810,46 @@ bool odroid_system_emu_save_state(int slot)
     return host_save_state_cb(path);
 }
 
+static int32_t settings_diff;
+static int32_t settings_paddle;
+static int32_t settings_ball;
+static int settings_inited;
+
+static void host_settings_init(void)
+{
+    if (settings_inited)
+        return;
+    settings_diff = 0;
+    settings_paddle = 0;
+    settings_ball = 0;
+    settings_inited = 1;
+}
+
 int32_t odroid_settings_app_int32_get(const char *key, int32_t value_default)
 {
+    host_settings_init();
     if (key && strcmp(key, "beep") == 0)
         return settings_beep;
+    if (key && strcmp(key, "diff") == 0)
+        return settings_diff;
+    if (key && strcmp(key, "paddle") == 0)
+        return settings_paddle;
+    if (key && strcmp(key, "ball") == 0)
+        return settings_ball;
     return value_default;
 }
 
 void odroid_settings_app_int32_set(const char *key, int32_t value)
 {
+    host_settings_init();
     if (key && strcmp(key, "beep") == 0)
         settings_beep = value;
+    else if (key && strcmp(key, "diff") == 0)
+        settings_diff = value;
+    else if (key && strcmp(key, "paddle") == 0)
+        settings_paddle = value;
+    else if (key && strcmp(key, "ball") == 0)
+        settings_ball = value;
 }
 
 bool odroid_settings_ActiveGameGenieCodes_is_enabled(char *game_path, int code_index)

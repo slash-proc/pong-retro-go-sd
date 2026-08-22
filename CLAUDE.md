@@ -11,7 +11,7 @@ One tree = one binary. Choose the kind at build time:
 | Kind         | `PROJECT_KIND` | Packer             | SD path                |
 | ------------ | -------------- | ------------------ | ---------------------- |
 | Dynamic core | `core` (default) | `pack_core.py`   | `/cores/*.bin`         |
-| Homebrew     | `homebrew`     | `pack_homebrew.py` | `/roms/homebrew/*.bin` |
+| Homebrew     | `homebrew`     | `pack_homebrew.py` | `/homebrews/*.bin` |
 
 
 Read `README.md` for build/pack basics. Read `sdk/ld/core_ram_emu.ld` for
@@ -272,8 +272,11 @@ and between audio catch-up chunks.
 
 - LCD and audio DMA are bus masters and **cache-blind**. Clean D-cache
 before DMA2D/SAI reads core-produced buffers in cacheable RAM.
-- Scaled present may use ABI `dma2d_ctl` — see firmware comments; poll
-with watchdog slices, do not block for 100 ms unfed.
+- Scaled present may use ABI `dma2d_m2m_rgb565_start` /
+  `dma2d_m2m_rgb565_start_ex` (src/dst line offsets) / `dma2d_poll` — see
+  firmware comments; poll with watchdog slices, do not block for 100 ms unfed.
+- Solid RGB565 fills (with optional line offset) may use
+  `dma2d_r2m_rgb565_start` + `dma2d_poll` (same HAL handle; re-Init every start).
 
 ---
 

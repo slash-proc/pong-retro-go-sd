@@ -8,5 +8,6 @@
 *.lst
 *_host
 host_saves/
+.vendor-pong/
 .DS_Store
 __pycache__/

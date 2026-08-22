@@ -23,3 +23,10 @@ SOFTWARE.
 NOTE: Vendored headers under sdk/include/ originate from the Game & Watch
 Retro-Go SD firmware and retain their original licenses (GPL / vendor terms
 as applicable). The example core and build glue in this repository are MIT.
+
+The Pong game sources under src/pong/ (except ST font bitmaps) are a port of
+https://github.com/Jopo12321/game-and-watch-pong and are licensed under the
+BSD 3-Clause License — see src/pong/LICENSE.
+
+Font files under src/pong/font/ are Copyright (c) 2014 STMicroelectronics
+and retain the license text in each file.
