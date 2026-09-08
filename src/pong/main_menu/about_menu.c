@@ -37,15 +37,11 @@ void about_menu_init() {
 	//main_menu_init();
 }
 static void about_menu_loop() {
-	uint16_t *fb;
-
 	pong_poll();
-	fb = lcd_get_active_buffer();
-	draw_background(fb);
-
 	process_input();
 	update();
-
+	if (pong_can_draw())
+		draw_background(lcd_get_active_buffer());
 	pong_present();
 }
 
@@ -161,21 +157,21 @@ static void secret_function() {
 	int secret_data4 = 1;
 	int secret_data5 = 1;
 	while (secret_data4) {
-		uint16_t *fb;
-
 		pong_poll();
-		fb = lcd_get_active_buffer();
 
 		if (secret_data5) {
-			secret_data3.x = x[0];
-			secret_data3.y = y[0];
-			render_sprite(fb, secret_data3);
-			secret_data3.x = x[0] + 8;
-			render_sprite(fb, secret_data3);
-			secret_data3.y = y[0] + 8;
-			render_sprite(fb, secret_data3);
-			secret_data3.x = x[0];
-			render_sprite(fb, secret_data3);
+			if (pong_can_draw()) {
+				uint16_t *fb = lcd_get_active_buffer();
+				secret_data3.x = x[0];
+				secret_data3.y = y[0];
+				render_sprite(fb, secret_data3);
+				secret_data3.x = x[0] + 8;
+				render_sprite(fb, secret_data3);
+				secret_data3.y = y[0] + 8;
+				render_sprite(fb, secret_data3);
+				secret_data3.x = x[0];
+				render_sprite(fb, secret_data3);
+			}
 			if (x[0] == 112 && y[0] == 112) {
 				secret_data5 = 0;
 				delay = 30;
@@ -213,9 +209,9 @@ static void secret_function() {
 				}
 				break;
 			}
-			lcd_sync();
-		} else {
-			if (delay <= 0) {
+		} else if (delay <= 0) {
+			if (pong_can_draw()) {
+				uint16_t *fb = lcd_get_active_buffer();
 				LCD_Clear(fb, LCD_COLOR_BLACK);
 				for (i = 0; i < 100; ++i) {
 					LCD_DrawPixel(fb, secret_data9[i], secret_dataA[i],
@@ -236,22 +232,24 @@ static void secret_function() {
 					secret_data7.x = x[i] + 16;
 					set_sprite_flip_x(&secret_data7, 1);
 					render_sprite(fb, secret_data7);
-					for (j = 0; j < 3; ++j) {
-						if (y[i] == 0) {
-							y_speed[i] = 1;
-						}
-						if (y[i] == 208) {
-							y_speed[i] = -1;
-						}
-						if (x[i] == 0) {
-							x_speed[i] = 1;
-						}
-						if (x[i] == 288) {
-							x_speed[i] = -1;
-						}
-						x[i] = x[i] + x_speed[i];
-						y[i] = y[i] + y_speed[i];
+				}
+			}
+			for (i = 0; i < secret_data8; ++i) {
+				for (j = 0; j < 3; ++j) {
+					if (y[i] == 0) {
+						y_speed[i] = 1;
 					}
+					if (y[i] == 208) {
+						y_speed[i] = -1;
+					}
+					if (x[i] == 0) {
+						x_speed[i] = 1;
+					}
+					if (x[i] == 288) {
+						x_speed[i] = -1;
+					}
+					x[i] = x[i] + x_speed[i];
+					y[i] = y[i] + y_speed[i];
 				}
 			}
 		}

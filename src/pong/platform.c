@@ -22,6 +22,7 @@ static uint32_t buttons;
 static void *last_frame;
 static unsigned long rng = 1;
 static odroid_dialog_choice_t *options;
+static bool can_draw;
 
 static uint32_t map_buttons(const odroid_gamepad_state_t *joy)
 {
@@ -64,6 +65,7 @@ void pong_platform_init(void)
     buttons = 0;
     last_frame = NULL;
     options = NULL;
+    can_draw = false;
 }
 
 void pong_set_options(odroid_dialog_choice_t *game_options)
@@ -76,23 +78,34 @@ void pong_poll(void)
     static odroid_dialog_choice_t none[] = {
         ODROID_DIALOG_CHOICE_LAST
     };
+    bool draw_frame;
 
     wdog_refresh();
-    (void)common_emu_frame_loop();
+    draw_frame = common_emu_frame_loop();
     odroid_input_read_gamepad(&pad);
     common_emu_input_loop(&pad, options ? options : none, &pong_repaint);
     common_emu_input_loop_handle_turbo(&pad);
     buttons = map_buttons(&pad);
+
+    /* Same present gate as tgb-dual: skip blit/swap when the integrator
+     * says so, or while LTDC still owns the back buffer after lcd_swap. */
+    can_draw = draw_frame && !lcd_is_swap_pending();
+}
+
+bool pong_can_draw(void)
+{
+    return can_draw;
 }
 
 void pong_present(void)
 {
-    common_ingame_overlay();
-    last_frame = lcd_get_active_buffer();
-    lcd_swap();
+    if (can_draw) {
+        common_ingame_overlay();
+        last_frame = lcd_get_active_buffer();
+        lcd_swap();
+    }
     submit_silence();
     common_emu_sound_sync(false);
-    lcd_wait_for_vblank();
 }
 
 void pong_delay_ms(uint32_t ms)

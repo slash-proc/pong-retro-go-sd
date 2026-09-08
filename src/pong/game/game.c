@@ -141,34 +141,34 @@ void game_init(void)
 
 static void game_loop(void)
 {
-	uint16_t *fb;
-
 	pong_poll();
-	fb = lcd_get_active_buffer();
-	draw_background(fb);
-	render_sprites(fb, list);
 	process_input();
 	update();
+	if (pong_can_draw()) {
+		uint16_t *fb = lcd_get_active_buffer();
+		draw_background(fb);
+		render_sprites(fb, list);
+	}
 	pong_present();
 }
 
 static void demo_loop(void)
 {
-	uint16_t *fb;
-
 	pong_poll();
-	fb = lcd_get_active_buffer();
-	draw_background(fb);
-
-	LCD_SetFont(&Font24);
-	LCD_SetFontScale(3);
-	LCD_SetTextColor(LCD_COLOR_DARKYELLOW);
-	LCD_DisplayStringAt(fb, 6, 100, (uint8_t *)"DEMO\0", CENTER_MODE);
-	LCD_SetFontScale(1);
-
-	render_sprites(fb, list);
 	process_input_demo();
 	update_demo();
+	if (pong_can_draw()) {
+		uint16_t *fb = lcd_get_active_buffer();
+		draw_background(fb);
+
+		LCD_SetFont(&Font24);
+		LCD_SetFontScale(3);
+		LCD_SetTextColor(LCD_COLOR_DARKYELLOW);
+		LCD_DisplayStringAt(fb, 6, 100, (uint8_t *)"DEMO\0", CENTER_MODE);
+		LCD_SetFontScale(1);
+
+		render_sprites(fb, list);
+	}
 	pong_present();
 }
 

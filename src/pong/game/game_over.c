@@ -44,13 +44,11 @@ void game_over_init(int player_won)
 
 static void game_over_loop(void)
 {
-	uint16_t *fb;
-
 	pong_poll();
-	fb = lcd_get_active_buffer();
-	draw_background(fb);
 	process_input();
 	update();
+	if (pong_can_draw())
+		draw_background(lcd_get_active_buffer());
 	pong_present();
 }
 
