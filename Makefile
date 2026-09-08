@@ -123,7 +123,7 @@ GEN_COVER     := scripts/gen_pong_cover.py
 # CORE_VERSION is the full git describe string passed to the packers; they
 # extract the leading vX.Y.Z (NOTAG / missing tags → 0.0.0).
 # Override: make CORE_VERSION=v1.2.3
-CORE_VERSION ?= $(shell git describe --tags --dirty 2>/dev/null || echo NOTAG)
+CORE_VERSION ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo 0.0.0)
 
 #######################################
 # Pack
