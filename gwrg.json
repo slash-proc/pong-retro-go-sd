@@ -1,0 +1,3 @@
+{
+  "$comment": "The hand-written half of this project's manifest. Everything else -- sizes, hashes, the firmware ABI, the display name -- is derived from the built bytes by scripts/make_manifest.py. Pong is self-contained: the user supplies nothing, so there is no converter to declare. No originalSystem: this is an original homebrew implementation, not a port of any one console release of Pong."
+}
