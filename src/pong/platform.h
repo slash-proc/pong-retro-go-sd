@@ -2,7 +2,6 @@
 #define PONG_PLATFORM_H_
 
 #include <stdint.h>
-#include <stdbool.h>
 #include "odroid_overlay.h"
 
 #define PONG_FPS         60
@@ -15,11 +14,7 @@ void pong_set_options(odroid_dialog_choice_t *game_options);
 /* Pump watchdog, firmware pause menu, and cached pad. Call every loop. */
 void pong_poll(void);
 
-/* True when this tick should blit + lcd_swap (same gate as tgb-dual:
- * common_emu_frame_loop() && !lcd_is_swap_pending()). */
-bool pong_can_draw(void);
-
-/* Overlay + conditional swap, then audio pacing via common_emu_sound_sync. */
+/* Overlay + swap + audio half-buffer pacing (common_emu_sound_sync). */
 void pong_present(void);
 
 /* Busy-wait that still feeds the watchdog and SAI. */
